@@ -49,6 +49,13 @@ const LoginView = ({ onLogin }) => {
         }
     }, [error]);
 
+    const ADMIN_EMAILS = ['jeeva.m.kec@gmail.com', 'justinjeeva72@gmail.com', 'jeevam.22aid@kongu.edu', 'admin'];
+
+    const getAssignedRole = (emailStr) => {
+        const lower = (emailStr || "").toLowerCase();
+        return ADMIN_EMAILS.some(a => lower.includes(a.toLowerCase())) ? 'admin' : 'user';
+    };
+
     const handleLogin = async (e) => {
         if (e) e.preventDefault();
         setLoginLoading(true);
@@ -64,14 +71,15 @@ const LoginView = ({ onLogin }) => {
             onLogin(response.data, portal);
         } catch (err) {
             console.warn("Backend unavailable, initializing clinical demo session:", err);
+            const assignedRole = getAssignedRole(username);
             const mockToken = {
                 access_token: "demo_token_" + Date.now(),
                 token_type: "bearer",
                 user: {
                     username: username || "clinician@deepbraindx.com",
                     full_name: fullName || (username ? username.split('@')[0] : "Dr. Alex Vance"),
-                    role: portal === 'admin' ? 'admin' : 'doctor',
-                    department: "Neuro-Radiology"
+                    role: assignedRole,
+                    department: assignedRole === 'admin' ? "System Lead Administration" : "Neuro-Radiology"
                 }
             };
             onLogin(mockToken, portal);
@@ -94,7 +102,7 @@ const LoginView = ({ onLogin }) => {
                 user: {
                     username: "google.user@deepbraindx.com",
                     full_name: "Dr. Google Clinical User",
-                    role: portal === 'admin' ? 'admin' : 'doctor',
+                    role: "user",
                     department: "Google Verified Access"
                 }
             };
@@ -113,14 +121,31 @@ const LoginView = ({ onLogin }) => {
             onLogin(response.data, portal);
         } catch (err) {
             console.warn("Google Auth verification fallback:", err);
+            // Decode Google JWT payload if available to get email
+            let googleEmail = "google.user@deepbraindx.com";
+            let googleName = "Google Verified Clinician";
+            try {
+                if (credentialResponse.credential) {
+                    const base64Url = credentialResponse.credential.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                    const parsed = JSON.parse(jsonPayload);
+                    if (parsed.email) googleEmail = parsed.email;
+                    if (parsed.name) googleName = parsed.name;
+                }
+            } catch (e) {
+                console.warn("JWT parse fallback:", e);
+            }
+
+            const assignedRole = getAssignedRole(googleEmail);
             const mockToken = {
                 access_token: "google_auth_token_" + Date.now(),
                 token_type: "bearer",
                 user: {
-                    username: "google.user@deepbraindx.com",
-                    full_name: "Google Verified Clinician",
-                    role: portal === 'admin' ? 'admin' : 'doctor',
-                    department: "Neuro-Diagnostics"
+                    username: googleEmail,
+                    full_name: googleName,
+                    role: assignedRole,
+                    department: assignedRole === 'admin' ? "System Lead Administration" : "Neuro-Diagnostics"
                 }
             };
             onLogin(mockToken, portal);
