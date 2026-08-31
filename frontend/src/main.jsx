@@ -38,7 +38,7 @@ class ErrorBoundary extends Component {
   }
 }
 
-const safeClientId = GOOGLE_CLIENT_ID || "76259674658-guiavr2l0g7rduhtn5fiac8solurt15a.apps.googleusercontent.com";
+const safeClientId = GOOGLE_CLIENT_ID || "76259674658-bo68pkobg221iku258jeid8ht4d3e5qq.apps.googleusercontent.com";
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
