@@ -12,7 +12,7 @@ import {
 const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 export const API_BASE = import.meta.env.VITE_API_URL || (isLocal ? `http://localhost:8000` : window.location.origin);
 export const WS_BASE = import.meta.env.VITE_WS_URL || (isLocal ? `ws://localhost:8000` : (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host);
-export const GOOGLE_CLIENT_ID = "76259674658-guiavr2l0g7rduhtn5fiac8solurt15a.apps.googleusercontent.com";
+export const GOOGLE_CLIENT_ID = "76259674658-bo68pkobg221iku258jeid8ht4d3e5qq.apps.googleusercontent.com";
 
 export const THEORY_CONTENT = {
     'Upload & Preprocessing': {
